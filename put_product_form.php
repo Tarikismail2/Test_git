@@ -5,18 +5,52 @@
 </head>
 <body>
     <h2>Update Product</h2>
-    <form action="" method="post">
-        <input type="hidden" name="_method" value="PUT"> <!-- Champ caché pour spécifier la méthode PUT -->
-        <label for="id">ID:</label><br>
-        <input type="text" id="id" name="id" value="<?php echo isset($_GET['id']) ? htmlspecialchars($_GET['id']) : ''; ?>" readonly><br>
-        <label for="name">Name:</label><br>
-        <input type="text" id="name" name="name"><br>
-        <label for="description">Description:</label><br>
-        <textarea id="description" name="description"></textarea><br>
-        <label for="price">Price:</label><br>
-        <input type="text" id="price" name="price"><br><br>
-        <button type="submit">Update Produit</button> 
-    </form>
+    <?php
+    // Vérifier si un ID de produit est passé dans l'URL
+    if (isset($_GET['id'])) {
+        // Récupérer l'ID du produit à partir de l'URL
+        $product_id = $_GET['id'];
+        
+        // URL de l'API REST pour récupérer les détails du produit spécifique
+        $url = 'http://localhost:8080/MyWebApi/rest/products/' . $product_id;
+
+        // Récupérer les détails du produit à partir de l'API REST
+        $product_details = file_get_contents($url);
+
+        if ($product_details !== FALSE) {
+            // Convertir les données JSON en tableau associatif
+            $product = json_decode($product_details, true);
+            
+            // Vérifier si les détails du produit ont été récupérés avec succès
+            if ($product) {
+                // Afficher le formulaire avec les détails du produit remplis dans les champs
+                ?>
+                <form action="" method="post">
+                    <input type="hidden" name="_method" value="PUT"> <!-- Champ caché pour spécifier la méthode PUT -->
+                    <label for="id">ID:</label><br>
+                    <input type="text" id="id" name="id" value="<?php echo htmlspecialchars($product['id']); ?>" readonly><br>
+                    <label for="name">Name:</label><br>
+                    <input type="text" id="name" name="name" value="<?php echo htmlspecialchars($product['name']); ?>"><br>
+                    <label for="description">Description:</label><br>
+                    <textarea id="description" name="description"><?php echo htmlspecialchars($product['description']); ?></textarea><br>
+                    <label for="price">Price:</label><br>
+                    <input type="text" id="price" name="price" value="<?php echo htmlspecialchars($product['price']); ?>"><br><br>
+                    <button type="submit">Update Produit</button> 
+                </form>
+                <?php
+            } else {
+                // Afficher un message si les détails du produit n'ont pas pu être récupérés
+                echo "Erreur lors de la récupération des détails du produit.";
+            }
+        } else {
+            // Afficher un message si la requête vers l'API REST a échoué
+            echo "Erreur lors de la communication avec l'API REST.";
+        }
+    } else {
+        // Afficher un message si aucun ID de produit n'a été passé dans l'URL
+        echo "ID du produit non spécifié.";
+    }
+    ?>
 
     <?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

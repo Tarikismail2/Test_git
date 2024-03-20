@@ -1,5 +1,5 @@
 <?php
-// URL de l'API JSONPlaceholder pour les produits
+// URL de l'API REST pour les produits
 $url = 'http://localhost:8080/MyWebApi/rest/products';
 // Requête GET pour récupérer tous les produits
 $result = file_get_contents($url);
