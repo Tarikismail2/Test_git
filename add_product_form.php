@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+S<html>
 <head>
     <title>Ajouter un Produit</title>
 </head>
@@ -12,59 +12,60 @@
         <textarea id="description" name="description"></textarea><br>
         <label for="price">Prix:</label><br>
         <input type="text" id="price" name="price"><br><br>
-        <button type="submit">Ajouter le Produit</button> <!-- Utilisation d'un bouton pour soumettre le formulaire -->
+        <button type="submit">Ajouter le Produit</button> 
     </form>
 
-    <?php
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        // Vérifier si les données nécessaires sont fournies dans la requête POST
-        if (isset($_POST['name']) && isset($_POST['description']) && isset($_POST['price'])) {
-            // Créer un tableau associatif avec les données du produit
-            $product_data = array(
-                'name' => $_POST['name'],
-                'description' => $_POST['description'],
-                'price' => $_POST['price']
-            );
+   <?php
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Vérifier si les nouvelles données sont fournies dans la requête POST
+    if (isset($_POST['name']) && isset($_POST['description']) && isset($_POST['price'])) {
+        $name = $_POST['name'];
+        $description = $_POST['description'];
+        $price = $_POST['price'];
 
-            // Convertir le tableau associatif en JSON
-            $json_product_data = json_encode($product_data);
+        // URL de l'API REST pour ajouter un nouveau produit
+        $url = 'http://localhost:8080/MyWebApi/rest/products';
 
-            // URL de l'API JSONPlaceholder pour ajouter un nouveau produit
-            $url = 'http://localhost:8080/MyWebApi/rest/products';
+        // Données à envoyer dans la requête POST
+        $data = array(
+            'name' => $name,
+            'description' => $description,
+            'price' => $price
+        );
 
-            // Configuration des options pour la requête cURL POST
-            $curl_options = array(
-                CURLOPT_URL => $url,
-                CURLOPT_POST => true,
-                CURLOPT_POSTFIELDS => $json_product_data,
-                CURLOPT_HTTPHEADER => array(
-                    'Content-Type: application/json'
-                ),
-                CURLOPT_RETURNTRANSFER => true
-            );
+        // Convertir les données en JSON
+        $json_data = json_encode($data);
 
-            // Initialiser cURL et exécuter la requête
-            $curl = curl_init();
-            curl_setopt_array($curl, $curl_options);
-            $response = curl_exec($curl);
+        // Configuration des options pour le contexte stream
+        $options = array(
+            'http' => array(
+                'method' => 'POST', // Définition de la méthode POST
+                'header' => 'Content-Type: application/json', // Spécification du type de contenu JSON
+                'content' => $json_data // Données JSON à envoyer
+            )
+        );
 
-            // Vérifier s'il y a des erreurs
-            if ($response === FALSE) {
-                // Gestion des erreurs pour la requête POST
-                echo "Erreur lors de l'ajout du produit : " . curl_error($curl);
-            } else {
-                // Affichage d'un message de succès
-                echo "Produit ajouté avec succès !";
-                header( 'Location: get_product.php'); 
-            }
+        // Créer le contexte stream
+        $context = stream_context_create($options);
 
-            // Fermer la session cURL
-            curl_close($curl);
+        // Effectuer la requête POST pour ajouter le produit
+        $result = file_get_contents($url, false, $context);
+
+        // Vérifier si la requête a réussi
+        if ($result === FALSE) {
+            // Gestion des erreurs pour la requête POST
+            echo "Erreur lors de l'ajout du produit";
         } else {
-            // Si les données nécessaires ne sont pas fournies dans la requête POST
-            echo "Toutes les données du produit sont requises pour ajouter un nouveau produit.";
+            // Affichage d'un message de succès
+            echo "Produit ajouté avec succès !";
+            header('Location: get_product.php');
         }
+    } else {
+        // Si les données nécessaires ne sont pas fournies dans la requête POST
+        echo "Toutes les données du produit sont requises pour ajouter un nouveau produit.";
     }
-    ?>
+}
+?>
+
 </body>
 </html>

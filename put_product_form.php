@@ -27,11 +27,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $description = $_POST['description'];
         $price = $_POST['price'];
 
-        // URL de l'API JSONPlaceholder pour mettre à jour le produit spécifique
+        // URL de l'API REST pour mettre à jour le produit spécifique
         $url = 'http://localhost:8080/MyWebApi/rest/products/' . $id;
 
         // Données à envoyer dans la requête PUT
         $data = array(
+            'id' => $id,
             'name' => $name,
             'description' => $description,
             'price' => $price
@@ -40,35 +41,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Convertir les données en JSON
         $json_data = json_encode($data);
 
-        // Configuration des options pour la requête cURL PUT
-        $curl_options = array(
-            CURLOPT_URL => $url,
-            CURLOPT_CUSTOMREQUEST => 'PUT', // Définition de la méthode PUT
-            CURLOPT_POSTFIELDS => $json_data, // Données JSON à envoyer
-            CURLOPT_HTTPHEADER => array(
-                'Content-Type: application/json', // Spécification du type de contenu JSON
-                'Content-Length: ' . strlen($json_data) // Spécification de la longueur des données
-            ),
-            CURLOPT_RETURNTRANSFER => true // Récupérer la réponse
+        // Configuration des options pour le contexte stream
+        $options = array(
+            'http' => array(
+                'method' => 'PUT', // Définition de la méthode PUT
+                'header' => 'Content-Type: application/json', // Spécification du type de contenu JSON
+                'content' => $json_data // Données JSON à envoyer
+            )
         );
 
-        // Initialiser cURL et exécuter la requête
-        $curl = curl_init();
-        curl_setopt_array($curl, $curl_options);
-        $response = curl_exec($curl);
+        // Créer le contexte stream
+        $context = stream_context_create($options);
 
-        // Vérifier s'il y a des erreurs
-        if ($response === FALSE) {
+        // Effectuer la requête PUT pour mettre à jour le produit
+        $result = file_get_contents($url, false, $context);
+
+        // Vérifier si la requête a réussi
+        if ($result === FALSE) {
             // Gestion des erreurs pour la requête PUT
-            echo "Erreur lors de la mise à jour du produit : " . curl_error($curl);
+            echo "Erreur lors de la mise à jour du produit";
         } else {
             // Affichage d'un message de succès
             echo "Produit mis à jour avec succès !";
-            header( 'Location: get_product.php'); 
+            header('Location: get_product.php'); 
         }
-
-        // Fermer la session cURL
-        curl_close($curl);
     } else {
         // Si les données nécessaires ne sont pas fournies dans la requête POST
         echo "Toutes les données du produit sont requises pour effectuer la mise à jour.";

@@ -1,23 +1,19 @@
 <?php
 // URL de l'API JSONPlaceholder pour les produits
 $url = 'http://localhost:8080/MyWebApi/rest/products';
-
 // Requête GET pour récupérer tous les produits
 $result = file_get_contents($url);
-
 if ($result === FALSE) {
     // Gestion des erreurs pour la requête GET
     echo "Erreur lors de la requête GET";
 } else {
     // Traitement de la réponse de la requête GET
     $products = json_decode($result);
-
     // Vérifier si des produits ont été récupérés
     if (!empty($products)) {
         echo "<h2>Liste des Produits</h2>";
         echo "<table border='1'>";
         echo "<tr><th>ID</th><th>Nom</th><th>Prix</th><th>Description</th><th>Actions</th></tr>";
-
         // Parcourir chaque produit et afficher ses données dans une ligne de tableau
         foreach ($products as $product) {
             echo "<tr>";
@@ -37,7 +33,5 @@ if ($result === FALSE) {
         echo "</br>";
         echo "<a href='add_product_form.php'>Ajoutez un nouveau produit</a>";
     } else {
-        echo "Aucun produit trouvé.";
-    }
-}
+        echo "Aucun produit trouvé.";  }}
 ?>
